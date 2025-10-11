@@ -6,6 +6,22 @@ spring:
     password: "N06z0TdQcDwbx2K4"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  # ?????QQ?????
+  mail:
+    host: smtp.qq.com
+    username: 196254331@qq.com
+    password: bpdtjyehgbbfbjaj  # QQ?????????????
+    port: 587
+    default-encoding: UTF-8
+    protocol: smtp # SMTP邮件协议
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 
 
 
@@ -17,6 +33,7 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+
 
 jwt:
   secretKey: "hVg1LcycfyZCJd0YPVujGKE1KtL7ntmHEHmXFAE10jcwPRopYiVAxQcaUxB4ZKFgDUCgBxY8ujMU4ZuNuhciAjPUmWG199ztEXwy"
