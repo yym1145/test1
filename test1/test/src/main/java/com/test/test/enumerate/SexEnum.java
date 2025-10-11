@@ -12,9 +12,10 @@ public enum SexEnum {
     WOMAN("女",0,"WOMAN"),
     MAN("男",1,"MAN");
 
+    @JsonValue
     private final String type;
 
-    @JsonValue
+
     private final Integer code;
 
     @EnumValue

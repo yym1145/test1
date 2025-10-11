@@ -76,18 +76,27 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         user.setId(IdWorker.getId());
         user.setStatusEnum(StatusEnum.START);
 
-        QueryWrapper<User>queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("mail",addUserDTO.getMail());
-        Long count=userMapper.selectCount(queryWrapper);
-        if (count!=0){
+        //判断邮箱是否存在
+        QueryWrapper<User>mailQueryWrapper=new QueryWrapper<>();
+        mailQueryWrapper.eq("mail",addUserDTO.getMail());
+        Long mailCount=userMapper.selectCount(mailQueryWrapper);
+        if (mailCount!=0){
             throw new BaseException("邮箱已存在");
         }
 
-        //生成盐值和加密密码
-        String salt= SaltUtil.generateSalt(16);
-        user.setSalt(salt);
-        String password=addUserDTO.getPassword()+salt;
-        user.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
+
+        if (addUserDTO.getPassword()==null){
+            String salt= SaltUtil.generateSalt(16);
+            user.setSalt(salt);
+            String password="123456"+salt;
+            user.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
+        }else {
+            //生成盐值和加密密码
+            String salt= SaltUtil.generateSalt(16);
+            user.setSalt(salt);
+            String password=addUserDTO.getPassword()+salt;
+            user.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
+        }
         if (userMapper.insert(user)!=1){
             throw new BaseException("新增失败");
         }
@@ -103,6 +112,10 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
     @Override
     public Result deleteUser(List<Long> ids) {
         List<User>userList=userMapper.selectBatchIds(ids);
+
+        if (ids.contains(BaseContext.getCurrentUserId())){
+            return Result.error("不能删除自己");
+        }
 
         //判断删除的邮件历史记录id是否存在
         if (ids.size()== userList.size()){

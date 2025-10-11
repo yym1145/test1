@@ -1,9 +1,10 @@
 package com.test.test.result;
 
+import com.test.test.exception.BaseException;
 import lombok.Data;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.Serializable;
-
 
 @Data
 public class Result<T> implements Serializable {

@@ -19,7 +19,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.io.IOException;
 
 /**
- * @author Refjttria
+ *
  * jwt令牌校验的拦截器
  * 身份验证，权限验证
  */

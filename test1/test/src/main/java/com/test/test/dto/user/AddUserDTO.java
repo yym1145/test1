@@ -1,9 +1,12 @@
 package com.test.test.dto.user;
 
 
+
 import com.test.test.enumerate.SexEnum;
+import com.test.test.note.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -33,12 +36,12 @@ public class AddUserDTO {
     @NotBlank(message = "地址不能为空")
     private String address;
 
+
     @Schema(description = "性别枚举对象WOMAN女，MAN男")
-    @NotBlank(message = "性别不能为空")
+    @NotNull(message = "性别不能为空")
     private SexEnum sexEnum;
 
     @Schema(description = "出生年月")
-    @NotBlank(message = "出生年月不能为空")
     private Date birthday;
 
 

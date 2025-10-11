@@ -4,6 +4,7 @@ package com.test.test.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.test.test.dto.user.*;
 import com.test.test.entiy.User;
+import com.test.test.exception.BaseException;
 import com.test.test.result.PageResult;
 import com.test.test.result.Result;
 import com.test.test.service.UserService;
@@ -35,7 +36,7 @@ public class UserController {
      */
     @PostMapping("/addUser")
     @Operation(summary = "新增用户")
-    public Result<String> addUser(@Valid @RequestBody AddUserDTO dto){
+    public Result<String> addUser(@Validated @RequestBody AddUserDTO dto){
         return Result.success("新增成功",userService.addUser(dto));
     }
 
@@ -119,7 +120,7 @@ public class UserController {
      */
     @PostMapping("/pageUser")
     @Operation(summary = "分页查询用户")
-    public Result<PageResult<User>>pageUser(@RequestBody PageUserDTO dto){
+    public Result<PageResult<User>>pageUser(@Validated@RequestBody PageUserDTO dto){
         PageResult<User> pageResult=userService.pageUser(dto);
         return Result.success("查询成功",pageResult);
     }
