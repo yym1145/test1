@@ -3,7 +3,6 @@ package com.test.test.dto.user;
 
 
 import com.test.test.enumerate.SexEnum;
-import com.test.test.note.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +18,6 @@ public class AddUserDTO {
     private String userName;
 
     @Schema(description = "加密后的密码")
-    @NotBlank(message = "用户密码为空")
     @Size(min = 6, max = 32, message = "请输入8~32位密码")
     private String password;
 

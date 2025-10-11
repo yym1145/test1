@@ -85,6 +85,15 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         }
 
 
+        //判断邮箱是否存在
+        QueryWrapper<User>userNameQueryWrapper=new QueryWrapper<>();
+        userNameQueryWrapper.eq("user_name",addUserDTO.getUserName());
+        Long userNameCount=userMapper.selectCount(userNameQueryWrapper);
+        if (userNameCount!=0){
+            throw new BaseException("用户名已存在");
+        }
+
+
         if (addUserDTO.getPassword()==null){
             String salt= SaltUtil.generateSalt(16);
             user.setSalt(salt);
