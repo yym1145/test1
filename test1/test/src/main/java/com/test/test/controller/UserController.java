@@ -4,13 +4,13 @@ package com.test.test.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.test.test.dto.user.*;
 import com.test.test.entiy.User;
-import com.test.test.exception.BaseException;
 import com.test.test.result.PageResult;
 import com.test.test.result.Result;
 import com.test.test.service.UserService;
-import com.test.test.vo.UserLoginVO;
+import com.test.test.vo.user.CurrentUserVO;
+import com.test.test.vo.user.UserLoginVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -148,8 +148,16 @@ public class UserController {
      */
     @PostMapping("/selectOneUser")
     @Operation(summary = "单个用户查询")
-    public Result<User> selectOneUser(@PathVariable @Parameter(description = "要查询的用户的id") Long id){
+    public Result<User> selectOneUser(@Valid @RequestParam(value = "id",required = true)
+                                          @Schema(description = "配水计划id")Long id){
         User user=userService.selectOneUser(id);
         return Result.success("查询成功",user);
+    }
+
+    @GetMapping("/getCurrentUserInformation")
+    @Operation(summary = "获取当前用户的基本信息")
+    public Result<CurrentUserVO>getCurrentUserInformation(){
+        CurrentUserVO vo=userService.getCurrentUserInformation();
+        return Result.success("查询成功",vo);
     }
 }

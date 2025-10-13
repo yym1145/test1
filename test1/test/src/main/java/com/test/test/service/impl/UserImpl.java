@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.test.test.bo.UserLoginData;
 import com.test.test.bo.UserLoginVerifyData;
 import com.test.test.context.BaseContext;
 import com.test.test.dto.user.*;
@@ -15,16 +17,19 @@ import com.test.test.entiy.User;
 import com.test.test.enumerate.StatusEnum;
 import com.test.test.exception.BaseException;
 import com.test.test.mapper.UserMapper;
+import com.test.test.redis.RedisPrefix;
 import com.test.test.result.PageResult;
 import com.test.test.result.Result;
 import com.test.test.service.UserService;
 import com.test.test.util.JwtUtil;
 import com.test.test.util.SaltUtil;
-import com.test.test.vo.UserLoginVO;
+import com.test.test.vo.user.CurrentUserVO;
+import com.test.test.vo.user.UserLoginVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,11 +37,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class UserImpl extends ServiceImpl<UserMapper, User> implements UserService {
     private final UserMapper userMapper;
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private final ObjectMapper objectMapper;
 
     @Value("${jwt.secretKey}")
     private String jwtSecretKey;
@@ -69,7 +79,7 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
      */
     @Override
     public String addUser(AddUserDTO addUserDTO) {
-        System.out.println(BaseContext.getCurrentUserId());
+        System.out.println(BaseContext.getCurrentUserRoleIds());
         //创建用户
         User user = new User();
         BeanUtils.copyProperties(addUserDTO,user);
@@ -143,10 +153,14 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
      */
     @Override
     public UserLoginVO login(UserLoginDTO dto) throws JsonProcessingException {
-        QueryWrapper<User>queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("mail",dto.getMail());
-        User user=userMapper.selectOne(queryWrapper);
-        if (user==null){
+//        QueryWrapper<User>queryWrapper=new QueryWrapper<>();
+//        queryWrapper.eq("mail",dto.getMail());
+//        User user=userMapper.selectOne(queryWrapper);
+//        if (user==null){
+//            throw new BaseException("用户不存在");
+//        }
+        UserLoginVerifyData user = userMapper.getUserLoginDataByAccount(dto.getMail());
+        if (user == null){
             throw new BaseException("用户不存在");
         }
         // 创建用户登录验证数据对象，用于处理登录验证相关信息
@@ -170,6 +184,12 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
                 jwtSecretKey,
                 jwtExpiration * 3600 * 1000,
                 claims);
+        //返回用户信息
+        UserLoginData userLoginData = new UserLoginData();
+        userLoginData.setId(user.getId());
+        userLoginData.setToken(token);
+        userLoginData.setRoleIds(user.getRoleIds());
+        redisTemplate.opsForValue().set(RedisPrefix.USER_LOGIN_DATA.getPrefix() + user.getId(), objectMapper.writeValueAsString(userLoginData), jwtExpiration, TimeUnit.HOURS);
         return UserLoginVO
                 .builder()
                 .id(data.getId())
@@ -390,6 +410,12 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
             throw new BaseException("用户不存在");
         }
         return user;
+    }
+
+    @Override
+    public CurrentUserVO getCurrentUserInformation() {
+        CurrentUserVO vo=userMapper.getCurrentUserInformation(BaseContext.getCurrentUserId());
+        return vo;
     }
 
     /**

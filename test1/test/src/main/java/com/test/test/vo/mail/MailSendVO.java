@@ -1,4 +1,4 @@
-package com.test.test.vo;
+package com.test.test.vo.mail;
 
 
 import com.test.test.enumerate.Status;

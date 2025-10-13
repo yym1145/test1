@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.test.mapper.RoleMapper">
+
+    <resultMap id="RoleGroupListMap" type="com.test.test.vo.role.RoleGroupListVO">
+        <id column="type" property="roleType"/>
+        <collection property="roleList" ofType="com.test.test.vo.role.RoleDataVO">
+            <result column="id" property="id"/>
+            <result column="name" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getRoleGroupList" resultMap="RoleGroupListMap">
+        SELECT
+            r.id,
+            r.name,
+            r.type
+        FROM role r
+    </select>
+
+    <resultMap id="MenuPermissionMap" type="com.test.test.vo.role.permission.MenuPermissionVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <collection property="permissions" ofType="com.test.test.vo.role.permission.PermissionVO">
+            <id column="permission_id" property="id"/>
+            <result column="permission_name" property="name"/>
+            <result column="permission_description" property="description"/>
+        </collection>
+    </resultMap>
+
+    <select id="getMenuPermission" resultMap="MenuPermissionMap">
+        SELECT
+            m.id,
+            m.name,
+            m.parent_id,
+            p.id AS permission_id,
+            p.name AS permission_name,
+            p.description AS permission_description
+        FROM menu m
+                 LEFT JOIN permission p ON p.menu_id = m.id AND p.basic = 0
+        ORDER BY m.id,p.id
+    </select>
+
+    <insert id="addUserRole">
+        INSERT INTO user_role (id, user_id, role_id) VALUES
+        <foreach collection="list" item="i" separator=",">
+            ('${@com.baomidou.mybatisplus.core.toolkit.IdWorker@getId()}',#{i},#{id})
+        </foreach>
+    </insert>
+</mapper>

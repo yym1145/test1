@@ -6,6 +6,8 @@ spring:
     password: "N06z0TdQcDwbx2K4"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+
+
   # ?????QQ?????
   mail:
     host: smtp.qq.com
@@ -21,6 +23,11 @@ spring:
           starttls:
             enable: true
             required: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
 
 
 

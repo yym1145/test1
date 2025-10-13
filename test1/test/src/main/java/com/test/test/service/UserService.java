@@ -7,7 +7,8 @@ import com.test.test.dto.user.*;
 import com.test.test.entiy.User;
 import com.test.test.result.PageResult;
 import com.test.test.result.Result;
-import com.test.test.vo.UserLoginVO;
+import com.test.test.vo.user.CurrentUserVO;
+import com.test.test.vo.user.UserLoginVO;
 
 import java.util.List;
 
@@ -85,4 +86,6 @@ public interface UserService extends IService<User> {
     Result updateUser(UpdateUserDTO dto);
 
     User selectOneUser(Long id);
+
+    CurrentUserVO getCurrentUserInformation();
 }

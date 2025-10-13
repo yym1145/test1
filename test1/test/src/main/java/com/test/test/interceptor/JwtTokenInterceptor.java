@@ -1,6 +1,10 @@
 package com.test.test.interceptor;
 
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.test.test.bo.UserLoginData;
+import com.test.test.exception.BaseException;
+import com.test.test.redis.RedisPrefix;
+import org.springframework.data.redis.core.RedisTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.test.context.BaseContext;
 import com.test.test.result.Result;
@@ -17,6 +21,9 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -26,7 +33,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenInterceptor implements HandlerInterceptor {
-
+    private final RedisTemplate<String, String> redisTemplate;
 
     private final ObjectMapper objectMapper;
 
@@ -67,6 +74,52 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             Long userId = Long.valueOf(claims.get("id").toString());
             //将ID存入线程空间中
             BaseContext.setCurrentUserId(userId);
+            String s = redisTemplate.opsForValue().get(RedisPrefix.USER_LOGIN_DATA.getPrefix() + userId);
+            if (s == null){
+                throw new BaseException("请重新登录");
+            }
+            UserLoginData userLoginData = objectMapper.readValue(s, UserLoginData.class);
+            List<Long> roleIds = userLoginData.getRoleIds();
+            BaseContext.setCurrentUserRoleIds(roleIds);
+            String requestPath = request.getRequestURI();
+            //获取基本权限
+            List<String> basicPermission = objectMapper.readValue(redisTemplate.opsForValue().get(RedisPrefix.ROLE_BASIC_PERMISSION.getPrefix()), new TypeReference<ArrayList<String>>() {});
+            if (basicPermission != null && !basicPermission.isEmpty()) {
+                for (String path : basicPermission) {
+                    //使用正则表达式匹配权限
+                    if (Pattern.matches(path.replaceAll("/+$","") + "(/.*)?", requestPath)) {
+                        //匹配成功,放行
+                        response.setStatus(HttpStatus.OK.value());
+                        return true;
+                    }
+                }
+            }
+
+            if (roleIds != null && !roleIds.isEmpty()) {
+                for (Long id : roleIds) {
+                    //获取用户对应角色权限
+                    List<String> rolePermission = objectMapper.readValue(redisTemplate.opsForValue()
+                                    .get(RedisPrefix.ROLE_DATA_PERMISSION.getPrefix() + id)
+                            , new TypeReference<List<String>>() {});
+                    // 判断所拥有的权限与访问目标是否匹配
+                    if (rolePermission != null && !rolePermission.isEmpty()) {
+                        for (String path : rolePermission) {
+                            //使用正则表达式匹配权限
+                            if (Pattern.matches(path.replaceAll("/+$","") + "(/.*)?", requestPath)) {
+                                //匹配成功,放行
+                                response.setStatus(HttpStatus.OK.value());
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //未匹配到权限
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.getWriter().write(objectMapper.writeValueAsString(Result.error("无权限访问资源")));
+            response.getWriter().flush();
+            return false;
         } catch (Exception e) {
             if( e.getClass() == ExpiredJwtException.class ){
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -79,6 +132,6 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             response.getWriter().flush();
             return false;
         }
-        return true;
+//        return true;
     }
 }
