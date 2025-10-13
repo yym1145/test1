@@ -383,6 +383,15 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         return Result.success("修改成功",null);
     }
 
+    @Override
+    public User selectOneUser(Long id) {
+        User user=userMapper.selectById(id);
+        if (user==null){
+            throw new BaseException("用户不存在");
+        }
+        return user;
+    }
+
     /**
      * 每十秒执行一次，验证邮箱验证码是否过期
      *

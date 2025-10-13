@@ -83,4 +83,6 @@ public interface UserService extends IService<User> {
      * @return
      */
     Result updateUser(UpdateUserDTO dto);
+
+    User selectOneUser(Long id);
 }

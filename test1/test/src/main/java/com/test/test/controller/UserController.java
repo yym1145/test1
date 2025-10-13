@@ -10,6 +10,7 @@ import com.test.test.result.Result;
 import com.test.test.service.UserService;
 import com.test.test.vo.UserLoginVO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -135,5 +136,20 @@ public class UserController {
     @Operation(summary = "修改用户")
     public Result updateUser(@RequestBody UpdateUserDTO updateUserDTO){
         return userService.updateUser(updateUserDTO);
+    }
+
+
+
+    /**
+     * 修改用户
+     *
+     * @param  id
+     * @return
+     */
+    @PostMapping("/selectOneUser")
+    @Operation(summary = "单个用户查询")
+    public Result<User> selectOneUser(@PathVariable @Parameter(description = "要查询的用户的id") Long id){
+        User user=userService.selectOneUser(id);
+        return Result.success("查询成功",user);
     }
 }
