@@ -18,6 +18,7 @@ public class UpdateUserDTO {
     private String id;
 
     @Schema(description = "密码")
+    @Size(min = 6, max = 32, message = "请输入6~32位密码")
     private String password;
 
     @Schema(description = "用户名")

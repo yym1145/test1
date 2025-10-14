@@ -18,7 +18,7 @@ public class AddUserDTO {
     private String userName;
 
     @Schema(description = "加密后的密码")
-    @Size(min = 6, max = 32, message = "请输入8~32位密码")
+    @Size(min = 6, max = 32, message = "请输入6~32位密码")
     private String password;
 
     @Schema(description = "邮箱")
