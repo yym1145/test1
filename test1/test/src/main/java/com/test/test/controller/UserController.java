@@ -49,7 +49,7 @@ public class UserController {
      */
     @PostMapping("/deleteUser")
     @Operation(summary = "批量删除用户")
-    public Result deleteUser(@RequestBody DeleteUserDTO dto){
+    public Result deleteUser(@Validated@RequestBody DeleteUserDTO dto){
          return userService.deleteUser(dto.getIdlist());
     }
 
@@ -61,7 +61,7 @@ public class UserController {
      */
     @PostMapping("/login")
     @Operation(summary = "登录")
-    public Result<UserLoginVO> login(@Valid @RequestBody UserLoginDTO dto) throws JsonProcessingException {
+    public Result<UserLoginVO> login(@Validated @RequestBody UserLoginDTO dto) throws JsonProcessingException {
         return Result.success("登陆成功",userService.login(dto));
     }
 
@@ -73,7 +73,7 @@ public class UserController {
      */
     @PostMapping("/sendVerificationCode")
     @Operation(summary = "发送验证码")
-    public Result sendVerificationCode(@RequestBody SendVerificationCodeDTO dto){
+    public Result sendVerificationCode(@Validated @RequestBody SendVerificationCodeDTO dto){
         return userService.sendVerificationCode(dto);
     }
 
@@ -149,7 +149,7 @@ public class UserController {
     @PostMapping("/selectOneUser")
     @Operation(summary = "单个用户查询")
     public Result<User> selectOneUser(@Valid @RequestParam(value = "id",required = true)
-                                          @Schema(description = "配水计划id")Long id){
+                                          @Schema(description = "用户id")Long id){
         User user=userService.selectOneUser(id);
         return Result.success("查询成功",user);
     }

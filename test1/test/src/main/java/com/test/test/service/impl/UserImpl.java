@@ -83,7 +83,7 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         //创建用户
         User user = new User();
         BeanUtils.copyProperties(addUserDTO,user);
-        user.setId(IdWorker.getId());
+        user.setId(String.valueOf(IdWorker.getId()));
         user.setStatusEnum(StatusEnum.START);
 
         //判断邮箱是否存在
@@ -129,19 +129,19 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
      * @return
      */
     @Override
-    public Result deleteUser(List<Long> ids) {
+    public Result deleteUser(List<String> ids) {
         List<User>userList=userMapper.selectBatchIds(ids);
 
-        if (ids.contains(BaseContext.getCurrentUserId())){
+        if (ids.contains(BaseContext.getCurrentUserId().toString())){
             return Result.error("不能删除自己");
         }
 
         //判断删除的邮件历史记录id是否存在
         if (ids.size()== userList.size()){
             userMapper.deleteBatchIds(ids);
-            return Result.success("删除成功");
+            return Result.success("删除成功",null);
         }else {
-            return Result.error("删除失败，邮件不存在");
+            return Result.error("删除失败，用户不存在");
         }
     }
 
@@ -306,7 +306,7 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
                 User newUser = new User();
                 BeanUtils.copyProperties(oldUser,newUser);
                 userMapper.updateById(newUser);
-                return Result.success("修改成功 ");
+                return Result.success("修改成功 ",null);
             }else {
                 return Result.error("密码错误");
             }
@@ -343,7 +343,7 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         User newUser = new User();
         BeanUtils.copyProperties(oldUser,newUser);
         userMapper.updateById(newUser);
-        return Result.success("修改成功 ");
+        return Result.success("修改成功 ",null);
     }
 
     /**

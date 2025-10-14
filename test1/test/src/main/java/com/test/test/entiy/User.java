@@ -18,8 +18,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class User {
     @TableId(value = "id", type = IdType.AUTO)
-    @Schema(description = "邮件id")
-    private Long id;
+    @Schema(description = "用户id")
+    private String id;
 
     @Schema(description = "用户名")
     private String userName;

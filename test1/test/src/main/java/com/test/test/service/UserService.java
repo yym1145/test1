@@ -27,7 +27,7 @@ public interface UserService extends IService<User> {
      * @param  ids
      * @return
      */
-    Result deleteUser(List<Long>ids);
+    Result deleteUser(List<String>ids);
 
     /**
      * 登录
