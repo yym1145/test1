@@ -24,4 +24,41 @@
                  LEFT JOIN user_role ur ON u.id = ur.user_id
         WHERE u.mail = #{mail}
     </select>
+
+
+    <update id="updateUser">
+        update user
+        <set>
+            <if test="userName!=null">
+                user_name=#{userName},
+            </if>
+            <if test="password!=null">
+                `password`=#{password},
+            </if>
+            <if test="salt!=null">
+                salt=#{salt},
+            </if>
+            <if test="mail!=null">
+                mail=#{mail},
+            </if>
+            <if test="mobile!=null">
+                mobile=#{mobile},
+            </if>
+            <if test="address!=null">
+                address=#{address},
+            </if>
+            <if test="sexEnum!=null">
+                sex_enum=#{sexEnum},
+            </if>
+            <if test="birthday!=null">
+                birthday=#{birthday},
+            </if>
+            <if test="statusEnum!=null">
+                status_enum=#{statusEnum}
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
 </mapper>

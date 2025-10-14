@@ -14,4 +14,6 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Select("select * from user where id=#{id}")
     CurrentUserVO getCurrentUserInformation(Long id);
+
+    void updateUser(User user);
 }

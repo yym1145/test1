@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.test.bo.UserLoginData;
 import com.test.test.bo.UserLoginVerifyData;
@@ -23,6 +24,7 @@ import com.test.test.result.Result;
 import com.test.test.service.UserService;
 import com.test.test.util.JwtUtil;
 import com.test.test.util.SaltUtil;
+import com.test.test.vo.role.menu.MenuVO;
 import com.test.test.vo.user.CurrentUserVO;
 import com.test.test.vo.user.UserLoginVO;
 import lombok.RequiredArgsConstructor;
@@ -392,14 +394,18 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         queryWrapper.eq("id",dto.getId());
         User oldUser=userMapper.selectOne(queryWrapper);
         if (oldUser==null){
-            return Result.error("用户不存在");
+            throw new BaseException("用户不存在");
         }
         User user=new User();
-        BeanUtils.copyProperties(oldUser,user);
         BeanUtils.copyProperties(dto,user);
-        QueryWrapper<User>oldQueryWrapper=new QueryWrapper<>();
-        oldQueryWrapper.eq("id",dto.getId());
-        userMapper.update(user,oldQueryWrapper);
+        //生成16位随机盐值，用于密码加密
+        String salt = SaltUtil.generateSalt(16);
+        //将盐值设置到用户对象中
+        user.setSalt(salt);
+        //构建新密码：新密码明文 + 盐值
+        String newPassword = dto.getPassword() + salt;
+        user.setPassword(DigestUtils.md5DigestAsHex(newPassword.getBytes()));
+        userMapper.updateUser(user);
         return Result.success("修改成功",null);
     }
 
@@ -416,6 +422,43 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
     public CurrentUserVO getCurrentUserInformation() {
         CurrentUserVO vo=userMapper.getCurrentUserInformation(BaseContext.getCurrentUserId());
         return vo;
+    }
+
+    @Override
+    public List<MenuVO> getMenu() throws JsonProcessingException {
+        List<Long> roleIds = BaseContext.getCurrentUserRoleIds();
+        Map<Long, MenuVO> menuMap = new HashMap<>();
+        if (roleIds != null && !roleIds.isEmpty()) {
+            for (Long id : roleIds) {
+                String menuJson = redisTemplate.opsForValue().get(RedisPrefix.ROLE_DATA_MENU.getPrefix() + id);
+                if (menuJson != null && !menuJson.isEmpty()){
+                    List<MenuVO> menus = objectMapper.readValue(menuJson,new TypeReference<List<MenuVO>>() {});
+                    for (MenuVO menu : menus) {
+                        if (menu != null && !menuMap.containsKey(menu.getId())) {
+                            menuMap.put(menu.getId(), menu);
+                        }
+                    }
+                }
+            }
+        }
+        //创建根菜单列表
+        List<MenuVO> rootMenuList = new ArrayList<>();
+        //第一次遍历,构建映射,和根菜单,初始化属性
+        for (MenuVO menu : menuMap.values()) {
+            if (menu.getParentId() == null) {
+                // 根节点
+                rootMenuList.add(menu);
+            } else {
+                MenuVO parentMenu = menuMap.get(menu.getParentId());
+                if (parentMenu != null) {
+                    if (parentMenu.getChildren() == null) {
+                        parentMenu.setChildren(new ArrayList<>());
+                    }
+                    parentMenu.getChildren().add(menu);
+                }
+            }
+        }
+        return rootMenuList;
     }
 
     /**

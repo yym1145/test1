@@ -2,11 +2,13 @@ package com.test.test.controller;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.test.test.dto.user.*;
 import com.test.test.entiy.User;
 import com.test.test.result.PageResult;
 import com.test.test.result.Result;
 import com.test.test.service.UserService;
+import com.test.test.vo.role.menu.MenuVO;
 import com.test.test.vo.user.CurrentUserVO;
 import com.test.test.vo.user.UserLoginVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -134,7 +138,7 @@ public class UserController {
      */
     @PostMapping("/updateUser")
     @Operation(summary = "修改用户")
-    public Result updateUser(@RequestBody UpdateUserDTO updateUserDTO){
+    public Result updateUser(@Validated@RequestBody UpdateUserDTO updateUserDTO){
         return userService.updateUser(updateUserDTO);
     }
 
@@ -159,5 +163,11 @@ public class UserController {
     public Result<CurrentUserVO>getCurrentUserInformation(){
         CurrentUserVO vo=userService.getCurrentUserInformation();
         return Result.success("查询成功",vo);
+    }
+
+    @GetMapping("/getMenu")
+    @Operation(summary = "获取菜单")
+    public Result<List<MenuVO>> getMenu() throws JsonProcessingException {
+        return Result.success("查询成功", userService.getMenu());
     }
 }

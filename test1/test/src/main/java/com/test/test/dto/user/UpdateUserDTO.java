@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.test.test.enumerate.SexEnum;
 import com.test.test.enumerate.StatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,8 +14,11 @@ import java.util.Date;
 @Data
 public class UpdateUserDTO {
     @TableId(value = "id", type = IdType.AUTO)
-    @Schema(description = "邮件id")
-    private Long id;
+    @Schema(description = "用户id")
+    private String id;
+
+    @Schema(description = "密码")
+    private String password;
 
     @Schema(description = "用户名")
     private String userName;
@@ -23,6 +27,7 @@ public class UpdateUserDTO {
     private String mail;
 
     @Schema(description = "手机号")
+    @Size(max = 11, message = "联系电话长度超过限制")
     private String mobile;
 
     @Schema(description = "地址")

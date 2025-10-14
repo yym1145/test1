@@ -11,9 +11,10 @@ public enum StatusEnum {
     STOP("禁用", 0, "STOP"),
     START("启用", 1, "START");
 
+    @JsonValue
     private final String type;
 
-    @JsonValue
+
     private final Integer code;
 
     @EnumValue
