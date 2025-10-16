@@ -5,9 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.test.test.dto.user.*;
 import com.test.test.entiy.User;
+import com.test.test.exception.BaseException;
 import com.test.test.result.PageResult;
 import com.test.test.result.Result;
 import com.test.test.service.UserService;
+import com.test.test.util.CodeUtil;
 import com.test.test.vo.role.menu.MenuVO;
 import com.test.test.vo.user.CurrentUserVO;
 import com.test.test.vo.user.UserLoginVO;
@@ -90,7 +92,10 @@ public class UserController {
     @PostMapping("/verificationCodeValidation")
     @Operation(summary = "验证码验证")
     public Result verificationCodeValidation(@RequestBody VerificationCodeValidationDTO dto){
-        return userService.verificationCodeValidation(dto);
+        if (CodeUtil.checkCode(dto.getMail(), dto.getVerificationCode())) {
+            return Result.success("验证成功", true);
+        }
+        throw new BaseException("验证码错误");
     }
 
     /**
@@ -102,7 +107,8 @@ public class UserController {
     @PostMapping("/forgetPassword")
     @Operation(summary = "忘记密码")
     public Result forgetPassword(@RequestBody ForgetPasswordDTO dto){
-        return userService.forgetPassword(dto);
+        userService.forgetPassword(dto);
+        return Result.success("修改成功",null);
     }
 
     /**

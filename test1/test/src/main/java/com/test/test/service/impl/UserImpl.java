@@ -22,6 +22,7 @@ import com.test.test.redis.RedisPrefix;
 import com.test.test.result.PageResult;
 import com.test.test.result.Result;
 import com.test.test.service.UserService;
+import com.test.test.util.CodeUtil;
 import com.test.test.util.JwtUtil;
 import com.test.test.util.SaltUtil;
 import com.test.test.vo.role.menu.MenuVO;
@@ -38,6 +39,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -62,16 +64,10 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
     @Value("${spring.mail.username}")
     private String sendMailer;
 
-    //存储邮箱验证码
-    private String verificationCode;
     // 保存收件人邮箱
     private String mail;
-    // 记录验证码发送时间（用于计算有效期）
-    private Date startTime;
     // 保存验证码过期时间
     private Date endTime;
-    //存储验证码是否验证成功
-    private Boolean ll=false;
 
     /**
      * 新增用户
@@ -202,19 +198,8 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
     @Override
     public Result sendVerificationCode(SendVerificationCodeDTO dto) {
         SimpleMailMessage message = new SimpleMailMessage();
-        // 创建随机数生成器，用于生成验证码
-        Random random = new Random();
-        // 字符串构建器，用于拼接生成的验证码数字
-        StringBuilder code = new StringBuilder();
-        // 循环6次，生成6位数字的验证码
-        for (int i = 0; i < 6; i++) {
-            // 生成0-9之间的随机整数
-            int r = random.nextInt(10);
-            // 将随机数拼接到验证码字符串中
-            code.append(r);
-        }
-        // 将生成的验证码转换为字符串并保存
-        verificationCode= String.valueOf(code);
+        // 生成随机验证码
+        String code = CodeUtil.generateCode(6);
         // 构建邮件内容，包含验证码信息和提示
         String text = "您的验证码为：" + code + ",请勿泄露给他人。";
         // 设置邮件发送者（发件人邮箱
@@ -229,20 +214,9 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         message.setSubject("登录验证码");
         // 保存收件人邮箱
         mail=dto.getMail();
-
-        // 记录验证码发送时间（用于计算有效期）
-        startTime=message.getSentDate();
-        // 获取日历实例，用于计算验证码过期时间
-        Calendar cal = Calendar.getInstance();
-        // 设置日历时间为验证码发送时间
-        cal.setTime(startTime);
-        // 在发送时间基础上增加5分钟，作为验证码有效期
-        cal.add(Calendar.MINUTE,5);
-        // 保存验证码过期时间
-        endTime=cal.getTime();
-        //判断是否发送失败
         try {
             javaMailSender.send(message);
+            redisTemplate.opsForValue().set("code:" + mail, String.valueOf(code), Duration.ofMinutes(5));
             return Result.success("发送成功",null);
 
         }catch (Exception e){
@@ -250,70 +224,29 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         }
 
     }
-
-    /**
-     * 验证码验证
-     *
-     * @param  dto
-     * @return
-     */
-    @Override
-    public Result verificationCodeValidation(VerificationCodeValidationDTO dto) {
-        if (Objects.equals(dto.getMail(), mail) &&dto.getVerificationCode().equals(verificationCode)){
-            if (new Date().after(endTime)){
-                mail=null;
-                verificationCode=null;
-                //邮箱验证码发送时间
-                startTime=null;
-                //邮箱验证码有效期结束时间
-                endTime=null;
-                return Result.error("验证码失效");
-            }else {
-                ll=true;
-                return Result.success("验证成功",null);
-
-            }
-        }else {
-            ll=false;
-            return Result.error("无效验证码");
-        }
-    }
-
     /**
      * 忘记密码
      *
-     * @param  dto
-     * @return
+     * @param dto
      */
     @Override
-    public Result forgetPassword(ForgetPasswordDTO dto) {
-        // 验证标识判断
-        if (ll==true){
+    public void forgetPassword(ForgetPasswordDTO dto) {
+        String key = dto.getMail() != null ? dto.getMail() : dto.getMobile();
+        if (CodeUtil.checkCode(key, dto.getCode())) {
             QueryWrapper<User>queryWrapper=new QueryWrapper<>();
             queryWrapper.eq("mail",dto.getMail());
             User oldUser=userMapper.selectOne(queryWrapper);
             //判断用户是否存在，不存在则返回错误信息
             if (oldUser==null){
-                return Result.error("用户不存在");
+                throw new BaseException("用户不存在");
             }
-            //构建旧密码校验值：输入的旧密码明文 + 数据库中存储的盐值
-            String oldPassword=dto.getOldPassword()+oldUser.getSalt();
-            oldPassword=DigestUtils.md5DigestAsHex(oldPassword.getBytes());
-            //校验旧密码是否正确
-            if (oldPassword.equals(oldUser.getPassword())){
-                String salt = SaltUtil.generateSalt(16);
-                oldUser.setSalt(salt);
-                String newPassword = dto.getNewPassword() + salt;
-                oldUser.setPassword(DigestUtils.md5DigestAsHex(newPassword.getBytes()));
-                User newUser = new User();
-                BeanUtils.copyProperties(oldUser,newUser);
-                userMapper.updateById(newUser);
-                return Result.success("修改成功 ",null);
-            }else {
-                return Result.error("密码错误");
-            }
-        }else {
-            return Result.error("没有通过验证码验证，不能修改密码");
+            String salt = SaltUtil.generateSalt(16);
+            oldUser.setSalt(salt);
+            String newPassword = dto.getNewPassword() + salt;
+            oldUser.setPassword(DigestUtils.md5DigestAsHex(newPassword.getBytes()));
+            User newUser = new User();
+            BeanUtils.copyProperties(oldUser,newUser);
+            userMapper.updateById(newUser);
         }
     }
 
@@ -459,22 +392,5 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
             }
         }
         return rootMenuList;
-    }
-
-    /**
-     * 每十秒执行一次，验证邮箱验证码是否过期
-     *
-     *
-     *
-     */
-    @Scheduled(cron = "*/10 * * * * *")
-    public void timekeeping(){
-        if (new Date().after(endTime)){
-            mail=null;
-            verificationCode=null;
-            startTime=null;
-            endTime=null;
-            ll=false;
-        }
     }
 }

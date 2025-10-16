@@ -47,20 +47,11 @@ public interface UserService extends IService<User> {
     Result sendVerificationCode(SendVerificationCodeDTO dto);
 
     /**
-     * 验证码验证
-     *
-     * @param  dto
-     * @return
-     */
-    Result  verificationCodeValidation(VerificationCodeValidationDTO dto);
-
-    /**
      * 忘记密码
      *
-     * @param  dto
-     * @return
+     * @param dto
      */
-    Result  forgetPassword(ForgetPasswordDTO dto);
+    void   forgetPassword(ForgetPasswordDTO dto);
 
     /**
      * 修改密码
