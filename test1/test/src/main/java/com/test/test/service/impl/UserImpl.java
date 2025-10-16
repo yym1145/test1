@@ -66,8 +66,6 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
 
     // 保存收件人邮箱
     private String mail;
-    // 保存验证码过期时间
-    private Date endTime;
 
     /**
      * 新增用户
