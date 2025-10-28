@@ -1,7 +1,10 @@
 package com.test.test.config;
 
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.retry.MessageRecoverer;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
@@ -21,12 +24,22 @@ public class RabbitMQConfiguration {
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         DefaultJackson2JavaTypeMapper typeMapper = new DefaultJackson2JavaTypeMapper();
-        // 信任目标类所在包（或直接指定类）
-        typeMapper.setTrustedPackages("com.test.test.mongoDB");
+        typeMapper.setTrustedPackages("com.test.test.mongoDB"); // 替换为实际包名
         Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
         converter.setJavaTypeMapper(typeMapper);
         converter.setDefaultCharset(StandardCharsets.UTF_8.name());
         return converter;
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            ConnectionFactory connectionFactory,
+            Jackson2JsonMessageConverter converter
+    ) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(converter); // 替换默认转换器
+        return factory;
     }
 
 }
