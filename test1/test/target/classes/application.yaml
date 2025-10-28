@@ -8,6 +8,27 @@ spring:
 
 
 
+  rabbitmq:
+    host: gerbil.rmq.cloudamqp.com
+    port: 5672
+    virtual-host: lhmdojsw
+    username: lhmdojsw
+    password: "TMjcwqtKZoOaRUFx7DEEqdtRKPa60zOu"
+    listener:
+      direct:
+        prefetch: 1
+      simple:
+        acknowledge-mode: auto
+        retry:
+          enabled: true
+    connection-timeout: 1s
+
+    template:
+      retry:
+        enabled: true
+
+
+
   # ?????QQ?????
   mail:
     host: smtp.qq.com
@@ -25,9 +46,38 @@ spring:
             required: true
   data:
     redis:
-      host: 127.0.0.1
-      port: 6379
+      host: redis-18021.c276.us-east-1-2.ec2.redns.redis-cloud.com
+      port: 18021
       database: 0
+      password: "OdqNbGUcPObj2jcANGlXGnnlSwz0xjPK"
+
+
+
+    mongodb:
+      uri: mongodb+srv://root:xmh661335@cluster0.ppeup.mongodb.net/?appName=Cluster0
+      database: sample_mflix
+      username: root
+      password: xmh661335
+
+
+
+#    rabbitmq:
+#      host: gerbil.rmq.cloudamqp.com
+#      port: 5672
+#      virtual-host: lhmdojsw
+#      username: lhmdojsw
+#      password: "TMjcwqtKZoOaRUFx7DEEqdtRKPa60zOu"
+#      listener:
+#        direct:
+#            prefetch: 1
+#          simple:
+#            acknowledge-mode: auto
+#            retry:
+#              enabled: true
+#        connection-timeout: 1s
+#        template:
+#          retry:
+#            enabled: true
 
 
 
