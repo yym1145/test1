@@ -31,21 +31,18 @@ public class MessageController {
 
     @GetMapping("/getMessage")
     @Operation(summary = "获取所有消息")
-    @ApiOperationSupport(author = "汪润杰")
     public Result<List<Message>> getMessage() {
         return Result.success(messageService.getMessage(BaseContext.getCurrentUserId()));
     }
 
     @DeleteMapping("/deleteMessage")
     @Operation(summary = "删除指定消息")
-    @ApiOperationSupport(author = "汪润杰")
     public Result<Object> deleteMessage(@RequestParam @Parameter(description = "需要删除的消息ID", required = true) List<String> ids) {
         return Result.success(messageService.deleteMessage(ids));
     }
 
     @PutMapping("/readMessage")
     @Operation(summary = "已读指定消息")
-    @ApiOperationSupport(author = "汪润杰")
     public Result<Object> readMessage(@RequestParam @Parameter(description = "已读的消息ID列表", required = true) List<String> ids) {
         return Result.success(messageService.readMessage(ids));
     }
