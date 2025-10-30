@@ -22,7 +22,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Message<T> implements Serializable {
+public class Message<T>  {
     @Id
     @Schema(description = "消息ID")
     private String id;

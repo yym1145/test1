@@ -77,15 +77,15 @@ public class MessageServiceImpl implements MessageService {
         return mongoTemplate.updateMulti(updateQuery, update, Message.class);
     }
 
-    /**
-     * 每天00:00清除三十天前的消息
-     */
-    @Scheduled(cron = "0 0 0 * * *")
-    private void clear() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(calendar.getTime());
-        calendar.add(Calendar.DAY_OF_MONTH, -30);
-        Query clearQuery = new Query(Criteria.where("sendTime").lt(calendar.getTime()));
-        mongoTemplate.remove(clearQuery, Message.class);
-    }
+//    /**
+//     * 每天00:00清除三十天前的消息
+//     */
+//    @Scheduled(cron = "0 0 0 * * *")
+//    private void clear() {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(calendar.getTime());
+//        calendar.add(Calendar.DAY_OF_MONTH, -30);
+//        Query clearQuery = new Query(Criteria.where("sendTime").lt(calendar.getTime()));
+//        mongoTemplate.remove(clearQuery, Message.class);
+//    }
 }

@@ -19,7 +19,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GrowthRecordReplyMessageData implements Serializable {
+public class GrowthRecordReplyMessageData implements ReplyMessageData {
 
     private AssociatedContent associatedContent = AssociatedContent.GROWTH_RECORD;
 

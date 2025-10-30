@@ -16,7 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SendUserData implements Serializable {
+public class SendUserData  {
     @Schema(description = "消息来源用户ID,如果为系统消息则没有该字段")
     private Long sendUserId;
 

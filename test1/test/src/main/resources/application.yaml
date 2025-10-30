@@ -8,6 +8,7 @@ spring:
 
 
 
+
   rabbitmq:
     host: gerbil.rmq.cloudamqp.com
     port: 5672
