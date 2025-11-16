@@ -1,7 +1,6 @@
 package com.test.test.controller;
 
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.test.test.context.BaseContext;
 import com.test.test.mongoDB.Message;
 import com.test.test.result.Result;
@@ -15,10 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @Author: Illya
- * @Date: 2024/9/3 下午5:32
- */
+
 @RestController
 @RequestMapping("/message/basics")
 @Slf4j

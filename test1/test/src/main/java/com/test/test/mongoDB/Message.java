@@ -13,10 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * @Author: Illya
- * @Date: 2024/9/2 下午2:58
- */
+
 @Data
 @Document("message")
 @Builder

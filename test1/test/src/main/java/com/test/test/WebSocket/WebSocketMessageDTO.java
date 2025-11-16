@@ -5,10 +5,7 @@ package com.test.test.WebSocket;
 import com.test.test.WebSocket.enumeration.OperationType;
 import lombok.Data;
 
-/**
- * @Author: Illya
- * @Date: 2024/9/3 下午4:36
- */
+
 @Data
 public class WebSocketMessageDTO {
     //操作类型枚举(0,获取消息,1,删除消息,2,发送消息)

@@ -11,10 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * @Author: Illya
- * @Date: 2024/8/26 08:29
- */
 @Data
 @Builder
 @AllArgsConstructor

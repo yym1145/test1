@@ -51,7 +51,6 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
         }
         log.info("用户id:{},建立WebSocket连接握手通过", userId);
         attributes.put("userId", userId);
-        System.out.println(attributes.get("userId"));
         response.setStatusCode(HttpStatus.OK);
         return true;
     }

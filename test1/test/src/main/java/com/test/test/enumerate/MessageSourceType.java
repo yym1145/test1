@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * @Author: Illya
- * @Date: 2024/8/25 15:57
- */
+
 @AllArgsConstructor
 @Getter
 public enum MessageSourceType {
