@@ -27,7 +27,7 @@ public class AddUserDTO {
 
     @Schema(description = "手机号")
     @NotBlank(message = "联系电话为空")
-    @Size(max = 11, message = "联系电话长度超过限制")
+    @Size(min = 11,max = 11, message = "联系电话长度超过限制或长度不够11位")
     private String mobile;
 
     @Schema(description = "地址")

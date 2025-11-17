@@ -327,6 +327,11 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         if (oldUser==null){
             throw new BaseException("用户不存在");
         }
+        if (dto.getMail()!=null){
+            if (oldUser.getMail().equals(dto.getMail())){
+                throw new BaseException("邮箱已存在");
+            }
+        }
         User user=new User();
         BeanUtils.copyProperties(dto,user);
         //生成16位随机盐值，用于密码加密
