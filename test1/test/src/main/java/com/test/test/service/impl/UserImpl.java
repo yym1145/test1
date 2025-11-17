@@ -324,13 +324,12 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
         QueryWrapper<User>queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("id",dto.getId());
         User oldUser=userMapper.selectOne(queryWrapper);
+        List<String>mailList=userMapper.mailList();
         if (oldUser==null){
             throw new BaseException("用户不存在");
         }
-        if (dto.getMail()!=null){
-            if (oldUser.getMail().equals(dto.getMail())){
-                throw new BaseException("邮箱已存在");
-            }
+        if (mailList.contains(dto.getMail())){
+            throw new BaseException("邮箱已存在");
         }
         User user=new User();
         BeanUtils.copyProperties(dto,user);
