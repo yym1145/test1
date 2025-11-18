@@ -80,6 +80,14 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
                 throw new BaseException("请重新登录");
             }
             UserLoginData userLoginData = objectMapper.readValue(s, UserLoginData.class);
+            // 4. 关键判断：当前请求的 Token 是否与 Redis 中存储的 Token 一致
+            if (!token.equals(userLoginData.getToken())) {
+                // Token 不一致，说明账号在其他设备登录过，旧 Token 失效
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write(objectMapper.writeValueAsString(Result.error("账号已在其他设备登录，请重新登录")));
+                response.getWriter().flush();
+                return false;
+            }
             List<Long> roleIds = userLoginData.getRoleIds();
             BaseContext.setCurrentUserRoleIds(roleIds);
             String requestPath = request.getRequestURI();

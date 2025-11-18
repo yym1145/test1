@@ -149,12 +149,6 @@ public class UserImpl extends ServiceImpl<UserMapper, User> implements UserServi
      */
     @Override
     public UserLoginVO login(UserLoginDTO dto) throws JsonProcessingException {
-//        QueryWrapper<User>queryWrapper=new QueryWrapper<>();
-//        queryWrapper.eq("mail",dto.getMail());
-//        User user=userMapper.selectOne(queryWrapper);
-//        if (user==null){
-//            throw new BaseException("用户不存在");
-//        }
         UserLoginVerifyData user = userMapper.getUserLoginDataByAccount(dto.getMail());
         if (user == null){
             throw new BaseException("用户不存在");
